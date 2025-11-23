@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AidNet - Fundraising</title>
+    <link rel="stylesheet" href="assets/css/styles.css?v=20251105">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="logo-container">
+            <div class="logo-circle">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 4C17.373 4 12 9.373 12 16c0 6 10 16 12 18 2-2 12-12 12-18 0-6.627-5.373-12-12-12z" fill="white"/>
+                    <path d="M24 12v8M20 16h8" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+                    <rect x="12" y="32" width="24" height="12" rx="2" stroke="white" stroke-width="2" fill="none"/>
+                    <circle cx="16" cy="38" r="1" fill="white"/>
+                </svg>
+            </div>
+            <span class="logo-text">AidNet</span>
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="ambulance.html" class="nav-link">Ambulance</a>
+            <a href="firstaid.html" class="nav-link">FirstAid</a>
+            <a href="blood.html" class="nav-link">Blood</a>
+            <a href="profile.html" class="nav-link">Profile</a>
+            <a href="sos.html" class="nav-link">SOS</a>
+            <a href="media.html" class="nav-link">Media</a>
+            <a href="hero.html" class="nav-link">HERO</a>
+            <a href="feedback.html" class="nav-link">Feedback</a>
+            <a href="fund.html" class="nav-link">Fund</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container reveal">
+            <!-- Create Fundraiser -->
+            <div class="form-section" style="margin-bottom: 24px;">
+                <h2>Create Fundraiser</h2>
+                <form id="fundraiserForm">
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" name="title" required placeholder="Fundraiser title">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea name="description" rows="4" required placeholder="Describe the purpose of this fundraiser"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Target Amount (USD)</label>
+                        <input type="number" min="1" step="1" name="target_amount" required placeholder="1000">
+                    </div>
+                    <button type="submit" class="btn-primary">Create Fundraiser</button>
+                </form>
+                <div id="fundraiserMessage" class="message hidden"></div>
+            </div>
+
+            <!-- Active Fundraisers -->
+            <div>
+                <h3 style="color: var(--dark-blue); margin-bottom: 16px;">Active Fundraisers</h3>
+                <div id="fundraiserList"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Emergency Button -->
+    <button class="emergency-button" onclick="window.location.href='sos.html'" title="Emergency">
+        <i class="fas fa-phone"></i>
+        <span class="emergency-label">EMERGENCY</span>
+    </button>
+
+    <script src="assets/js/app.js?v=20251105"></script>
+    <script src="assets/js/fundraising.js"></script>
+    <script>
+        const auth = AidNet.getAuth();
+        if (!auth) {
+            window.location.href = 'login.html';
+        }
+
+        const fundraiserForm = document.getElementById('fundraiserForm');
+        const fundraiserMessage = document.getElementById('fundraiserMessage');
+        const fundraiserList = document.getElementById('fundraiserList');
+
+        if (fundraiserForm) {
+            fundraiserForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                fundraiserMessage.className = 'message hidden';
+                const form = new FormData(fundraiserForm);
+                const payload = {
+                    user_id: auth.id,
+                    title: form.get('title'),
+                    description: form.get('description'),
+                    target_amount: parseInt(form.get('target_amount'), 10)
+                };
+                const res = await AidNet.post('create_fundraiser.php', payload);
+                if (res.success) {
+                    fundraiserMessage.className = 'message success';
+                    fundraiserMessage.textContent = 'Fundraiser created successfully!';
+                    fundraiserForm.reset();
+                    await loadFundraisers();
+                } else {
+                    fundraiserMessage.className = 'message error';
+                    fundraiserMessage.textContent = res.error || 'Failed to create fundraiser';
+                }
+            });
+        }
+
+        async function loadFundraisers() {
+            const res = await AidNet.get('list_fundraisers.php');
+            if (res.success && Array.isArray(res.data)) {
+                if (res.data.length === 0) {
+                    fundraiserList.innerHTML = '<div class="service-card"><div class="card-content"><div class="card-title">No fundraisers found</div></div></div>';
+                } else {
+                    fundraiserList.innerHTML = res.data.map(f => `
+                        <div class="service-card" style="margin-bottom: 16px;">
+                            <div class="card-icon green">
+                                <i class="fas fa-hand-holding-usd"></i>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-title">${f.title}</div>
+                                <div class="card-detail">${f.description}</div>
+                                <div class="card-detail" style="margin-top: 8px;">
+                                    <strong>Raised: $${f.raised || 0} / $${f.target_amount}</strong>
+                                </div>
+                                <div style="display: flex; gap: 8px; margin-top: 12px;">
+                                    <input type="number" min="1" step="1" placeholder="Amount" id="donate-${f.id}" style="flex: 1; padding: 8px; border: 2px solid var(--border-color); border-radius: 6px;">
+                                    <button class="btn-primary" onclick="donateTo(${f.id})" style="padding: 8px 16px;">Donate</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } else {
+                fundraiserList.innerHTML = '<div class="service-card"><div class="card-content"><div class="card-title">Error loading fundraisers</div></div></div>';
+            }
+        }
+
+        window.donateTo = async function(fundraiserId) {
+            const input = document.getElementById(`donate-${fundraiserId}`);
+            const amount = parseInt(input.value, 10);
+            if (!amount || amount < 1) {
+                alert('Enter a valid amount');
+                return;
+            }
+            const res = await AidNet.post('donate.php', { user_id: auth.id, fundraiser_id: fundraiserId, amount });
+            if (res.success) {
+                alert('Donation recorded. Thank you!');
+                loadFundraisers();
+            } else {
+                alert(res.error || 'Failed to donate');
+            }
+        };
+
+        loadFundraisers();
+    </script>
+</body>
+</html>
+
+

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AidNet - Login / Register</title>
+    <link rel="stylesheet" href="assets/css/styles.css?v=20251105">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="logo-container" onclick="window.location.href='index.html'" style="cursor: pointer;">
+            <div class="logo-circle">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 4C17.373 4 12 9.373 12 16c0 6 10 16 12 18 2-2 12-12 12-18 0-6.627-5.373-12-12-12z" fill="white"/>
+                    <path d="M24 12v8M20 16h8" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+                    <rect x="12" y="32" width="24" height="12" rx="2" stroke="white" stroke-width="2" fill="none"/>
+                    <circle cx="16" cy="38" r="1" fill="white"/>
+                </svg>
+            </div>
+            <span class="logo-text">AidNet</span>
+        </div>
+        <a href="index.html" style="color: var(--dark-blue); text-decoration: none; font-size: 14px; font-weight: 600; padding: 8px 16px; background: rgba(255,255,255,0.9); border-radius: 6px;">
+            <i class="fas fa-home"></i> Home
+        </a>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="ambulance.html" class="nav-link">Ambulance</a>
+            <a href="firstaid.html" class="nav-link">FirstAid</a>
+            <a href="blood.html" class="nav-link">Blood</a>
+            <a href="profile.html" class="nav-link">Profile</a>
+            <a href="sos.html" class="nav-link">SOS</a>
+            <a href="media.html" class="nav-link">Media</a>
+            <a href="hero.html" class="nav-link">HERO</a>
+            <a href="feedback.html" class="nav-link">Feedback</a>
+            <a href="fund.html" class="nav-link">Fund</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="auth-container reveal">
+            <!-- Login Section -->
+            <section class="form-section reveal">
+                <h2>Login</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" required placeholder="your.email@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" name="password" required placeholder="Enter your password">
+                    </div>
+                    <button type="submit" class="btn-primary">Login</button>
+                </form>
+                <div id="loginMessage" class="message hidden"></div>
+            </section>
+
+            <!-- Register Section -->
+            <section class="form-section reveal">
+                <h2>Register</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" name="name" required placeholder="Your full name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" required placeholder="your.email@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" name="password" required placeholder="Create a password">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select name="role" required>
+                            <option value="">Select your role</option>
+                            <option value="patient">Patient</option>
+                            <option value="volunteer">Volunteer</option>
+                            <option value="hospital">Hospital</option>
+                            <option value="ngo">NGO</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-secondary">Register</button>
+                </form>
+                <div id="registerMessage" class="message hidden"></div>
+            </section>
+        </div>
+    </main>
+
+    <script src="assets/js/app.js?v=20251105"></script>
+    <script src="assets/js/auth.js?v=20251105"></script>
+    <script>
+        // Check if already logged in and redirect
+        document.addEventListener('DOMContentLoaded', () => {
+            const auth = AidNet.getAuth();
+            if (auth && auth.id) {
+                // User is already logged in, redirect to dashboard
+                window.location.href = 'dashboard.html';
+            }
+        });
+
+        // Enhanced message display
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const loginMessage = document.getElementById('loginMessage');
+        const registerMessage = document.getElementById('registerMessage');
+
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                loginMessage.className = 'message hidden';
+                const form = new FormData(loginForm);
+                const payload = {
+                    email: form.get('email'),
+                    password: form.get('password')
+                };
+                const res = await AidNet.post('login.php', payload);
+                if (res.success) {
+                    AidNet.setAuth(res.data);
+                    loginMessage.className = 'message success';
+                    loginMessage.textContent = 'Login successful! Redirecting...';
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1000);
+                } else {
+                    loginMessage.className = 'message error';
+                    loginMessage.textContent = res.error || 'Login failed';
+                }
+            });
+        }
+
+        if (registerForm) {
+            registerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                registerMessage.className = 'message hidden';
+                const form = new FormData(registerForm);
+                const payload = {
+                    name: form.get('name'),
+                    email: form.get('email'),
+                    password: form.get('password'),
+                    role: form.get('role')
+                };
+                const res = await AidNet.post('register.php', payload);
+                if (res.success) {
+                    registerMessage.className = 'message success';
+                    registerMessage.textContent = 'Registered successfully. Please login.';
+                    registerForm.reset();
+                } else {
+                    registerMessage.className = 'message error';
+                    registerMessage.textContent = res.error || 'Registration failed';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
+

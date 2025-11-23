@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AidNet - Dashboard</title>
+    <link rel="stylesheet" href="assets/css/styles.css?v=20251105">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="logo-container">
+            <div class="logo-circle">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 4C17.373 4 12 9.373 12 16c0 6 10 16 12 18 2-2 12-12 12-18 0-6.627-5.373-12-12-12z" fill="white"/>
+                    <path d="M24 12v8M20 16h8" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+                    <rect x="12" y="32" width="24" height="12" rx="2" stroke="white" stroke-width="2" fill="none"/>
+                    <circle cx="16" cy="38" r="1" fill="white"/>
+                </svg>
+            </div>
+            <span class="logo-text">AidNet</span>
+        </div>
+        <a href="#" id="logoutLink" style="color: var(--dark-blue); text-decoration: none; font-size: 14px; font-weight: 600;">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="ambulance.html" class="nav-link">Ambulance</a>
+            <a href="firstaid.html" class="nav-link">FirstAid</a>
+            <a href="blood.html" class="nav-link">Blood</a>
+            <a href="profile.html" class="nav-link">Profile</a>
+            <a href="sos.html" class="nav-link">SOS</a>
+            <a href="media.html" class="nav-link">Media</a>
+            <a href="hero.html" class="nav-link">HERO</a>
+            <a href="feedback.html" class="nav-link">Feedback</a>
+            <a href="fund.html" class="nav-link">Fund</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Welcome Card -->
+            <div class="dashboard-welcome reveal">
+                <h2>Welcome, <span id="userName">User</span>!</h2>
+                <p style="opacity: 0.9; font-size: 14px;">Role: <span id="userRole">-</span></p>
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Points</div>
+                        <div class="stat-value" id="userPoints">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Emergencies</div>
+                        <div class="stat-value" id="emergencyCount">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="reveal" style="margin-bottom: 24px;">
+                <h3 style="color: var(--dark-blue); margin-bottom: 16px;">Quick Actions</h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                    <a href="report.html" class="btn-primary" style="text-decoration: none; display: flex; flex-direction: column; align-items: center; padding: 20px;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 32px; margin-bottom: 8px;"></i>
+                        Report Emergency
+                    </a>
+                    <a href="fundraiser.html" class="btn-secondary" style="text-decoration: none; display: flex; flex-direction: column; align-items: center; padding: 20px;">
+                        <i class="fas fa-hand-holding-usd" style="font-size: 32px; margin-bottom: 8px;"></i>
+                        Fundraising
+                    </a>
+                </div>
+            </div>
+
+            <!-- Nearby Emergencies -->
+            <section class="reveal">
+                <h3 style="color: var(--dark-blue); margin-bottom: 16px;">Nearby Emergencies</h3>
+                <div id="emergencyList" class="cards" style="grid-template-columns: 1fr;">
+                    <div class="service-card">
+                        <div class="card-icon red"></div>
+                        <div class="card-content">
+                            <div class="skeleton skeleton-text" style="width: 60%;"></div>
+                            <div class="skeleton skeleton-text" style="width: 90%;"></div>
+                            <div class="skeleton skeleton-text" style="width: 40%; height: 10px;"></div>
+                        </div>
+                    </div>
+                    <div class="service-card">
+                        <div class="card-icon orange"></div>
+                        <div class="card-content">
+                            <div class="skeleton skeleton-text" style="width: 55%;"></div>
+                            <div class="skeleton skeleton-text" style="width: 80%;"></div>
+                            <div class="skeleton skeleton-text" style="width: 50%; height: 10px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Emergency Button -->
+    <button class="emergency-button" onclick="window.location.href='sos.html'" title="Emergency">
+        <i class="fas fa-phone"></i>
+        <span class="emergency-label">EMERGENCY</span>
+    </button>
+
+    <script src="assets/js/app.js?v=20251105"></script>
+    <script src="assets/js/emergency.js?v=20251105"></script>
+    <script>
+        // Load user data
+        const auth = AidNet.getAuth();
+        if (!auth) {
+            window.location.href = 'login.html';
+        } else {
+            document.getElementById('userName').textContent = auth.name || 'User';
+            document.getElementById('userRole').textContent = auth.role ? auth.role.charAt(0).toUpperCase() + auth.role.slice(1) : '-';
+            document.getElementById('userPoints').textContent = auth.points || 0;
+        }
+
+        // Load emergencies
+        async function loadEmergencies() {
+            try {
+                const res = await AidNet.get('list_emergencies.php');
+                if (res.success && Array.isArray(res.data)) {
+                    const list = document.getElementById('emergencyList');
+                    if (res.data.length === 0) {
+                        list.innerHTML = '<div class="service-card"><div class="card-content"><div class="card-title">No emergencies found</div></div></div>';
+                    } else {
+                        document.getElementById('emergencyCount').textContent = res.data.length;
+                        list.innerHTML = res.data.map(e => `
+                            <div class="service-card">
+                                <div class="card-icon ${e.severity === 'high' ? 'red' : e.severity === 'medium' ? 'orange' : 'blue'}">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="card-content">
+                                    <div class="card-title">${e.title}</div>
+                                    <div class="card-detail">${e.description.substring(0, 100)}${e.description.length > 100 ? '...' : ''}</div>
+                                    <div class="card-detail" style="font-size: 12px; color: var(--text-muted);">
+                                        Severity: ${e.severity} | Status: ${e.status}
+                                    </div>
+                                </div>
+                                ${auth && auth.role !== 'patient' ? `
+                                    <button class="card-action" onclick="offerHelp(${e.id})" title="Offer Help">
+                                        <i class="fas fa-hand-paper"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading emergencies:', error);
+            }
+        }
+
+        async function offerHelp(emergencyId) {
+            if (!auth) return;
+            try {
+                const res = await AidNet.post('offer_help.php', {
+                    user_id: auth.id,
+                    emergency_id: emergencyId
+                });
+                if (res.success) {
+                    alert('Help offered successfully!');
+                    loadEmergencies();
+                } else {
+                    alert(res.error || 'Failed to offer help');
+                }
+            } catch (error) {
+                console.error('Error offering help:', error);
+                alert('Failed to offer help');
+            }
+        }
+
+        window.offerHelp = offerHelp;
+        loadEmergencies();
+    </script>
+</body>
+</html>
+
+

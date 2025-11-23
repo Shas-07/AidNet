@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AidNet - Emergency Medical Aid</title>
+    <link rel="stylesheet" href="assets/css/styles.css?v=20251105">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="logo-container" onclick="window.location.href='landing/index.html'" style="cursor: pointer;">
+            <div class="logo-circle">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Location pin with medical cross -->
+                    <path d="M24 4C17.373 4 12 9.373 12 16c0 6 10 16 12 18 2-2 12-12 12-18 0-6.627-5.373-12-12-12z" fill="white"/>
+                    <path d="M24 12v8M20 16h8" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+                    <!-- Tablet/Phone below -->
+                    <rect x="12" y="32" width="24" height="12" rx="2" stroke="white" stroke-width="2" fill="none"/>
+                    <circle cx="16" cy="38" r="1" fill="white"/>
+                </svg>
+            </div>
+            <span class="logo-text">AidNet</span>
+        </div>
+        <div id="authButtons" style="display: flex; gap: 12px; align-items: center;">
+            <a href="landing/index.html" style="color: var(--dark-blue); text-decoration: none; font-size: 14px; font-weight: 600; padding: 8px 16px; background: rgba(255,255,255,0.9); border-radius: 6px;">
+                <i class="fas fa-info-circle"></i> About
+            </a>
+            <a href="login.html" id="loginBtn" style="color: var(--dark-blue); text-decoration: none; font-size: 14px; font-weight: 600; padding: 8px 16px; background: rgba(255,255,255,0.9); border-radius: 6px;">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            <a href="dashboard.html" id="dashboardBtn" style="display: none; color: var(--dark-blue); text-decoration: none; font-size: 14px; font-weight: 600; padding: 8px 16px; background: rgba(255,255,255,0.9); border-radius: 6px;">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <div class="nav-links">
+            <a href="index.html" class="nav-link active">Home</a>
+            <a href="ambulance.html" class="nav-link">Ambulance</a>
+            <a href="firstaid.html" class="nav-link">FirstAid</a>
+            <a href="blood.html" class="nav-link">Blood</a>
+            <a href="profile.html" class="nav-link">Profile</a>
+            <a href="sos.html" class="nav-link">SOS</a>
+            <a href="media.html" class="nav-link">Media</a>
+            <a href="hero.html" class="nav-link">HERO</a>
+            <a href="feedback.html" class="nav-link">Feedback</a>
+            <a href="fund.html" class="nav-link">Fund</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="hero-screen reveal">
+            <h2 style="color: var(--dark-blue); margin-bottom: 8px;">Your Emergency Medical Aid</h2>
+            <p style="color: var(--text-muted); margin-bottom: 32px;">Quick access to medical services when you need them most</p>
+            
+            <!-- Auth Call to Action -->
+            <div id="authCTA" style="margin-bottom: 32px; padding: 20px; background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%); border-radius: 16px; box-shadow: var(--shadow-lg); max-width: 500px; margin-left: auto; margin-right: auto;">
+                <div id="loggedOutCTA" style="text-align: center; color: white;">
+                    <h3 style="color: white; margin-bottom: 12px; font-size: 20px;">Get Started</h3>
+                    <p style="color: rgba(255,255,255,0.9); margin-bottom: 16px; font-size: 14px;">Login or Register to access all features</p>
+                    <div style="display: flex; gap: 12px; justify-content: center;">
+                        <a href="login.html" class="btn-primary" style="text-decoration: none; background: white; color: var(--primary-blue); font-weight: 700; padding: 12px 24px; border-radius: 8px;">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a href="login.html#register" class="btn-secondary" style="text-decoration: none; background: rgba(255,255,255,0.2); color: white; border: 2px solid white; font-weight: 700; padding: 12px 24px; border-radius: 8px;">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </div>
+                </div>
+                <div id="loggedInCTA" style="text-align: center; color: white; display: none;">
+                    <h3 style="color: white; margin-bottom: 12px; font-size: 20px;">Welcome back, <span id="welcomeUserName">User</span>!</h3>
+                    <p style="color: rgba(255,255,255,0.9); margin-bottom: 16px; font-size: 14px;">Access your dashboard and manage your account</p>
+                    <a href="dashboard.html" class="btn-primary" style="text-decoration: none; background: white; color: var(--primary-blue); font-weight: 700; padding: 12px 24px; border-radius: 8px; display: inline-block;">
+                        <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Service Grid -->
+            <div class="service-grid reveal">
+                <!-- Ambulance -->
+                <div class="service-icon" onclick="window.location.href='ambulance.html'">
+                    <div class="icon-circle red">
+                        <i class="fas fa-ambulance"></i>
+                    </div>
+                    <span class="service-label">AMBULANCE</span>
+                </div>
+
+                <!-- First Aid -->
+                <div class="service-icon" onclick="window.location.href='firstaid.html'">
+                    <div class="icon-circle red">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <span class="service-label">FIRST AID</span>
+                </div>
+
+                <!-- Blood Donation -->
+                <div class="service-icon" onclick="window.location.href='blood.html'">
+                    <div class="icon-circle red">
+                        <i class="fas fa-tint"></i>
+                    </div>
+                    <span class="service-label">BLOOD</span>
+                </div>
+
+                <!-- Dashboard -->
+                <div class="service-icon" onclick="window.location.href='dashboard.html'">
+                    <div class="icon-circle blue">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <span class="service-label">DASHBOARD</span>
+                </div>
+
+                <!-- Profile -->
+                <div class="service-icon" onclick="window.location.href='profile.html'">
+                    <div class="icon-circle black">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span class="service-label">PROFILE</span>
+                </div>
+
+                <!-- SOS -->
+                <div class="service-icon" onclick="window.location.href='sos.html'">
+                    <div class="icon-circle black">
+                        <i class="fas fa-phone-alt"></i>
+                    </div>
+                    <span class="service-label">SOS</span>
+                </div>
+
+                <!-- Media -->
+                <div class="service-icon" onclick="window.location.href='media.html'">
+                    <div class="icon-circle purple">
+                        <i class="fab fa-instagram"></i>
+                    </div>
+                    <span class="service-label">MEDIA</span>
+                </div>
+
+                <!-- Community -->
+                <div class="service-icon" onclick="window.location.href='hero.html'">
+                    <div class="icon-circle green">
+                        <i class="fas fa-globe-americas"></i>
+                    </div>
+                    <span class="service-label">COMMUNITY</span>
+                </div>
+
+                <!-- Hero -->
+                <div class="service-icon" onclick="window.location.href='hero.html'">
+                    <div class="icon-circle orange">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <span class="service-label">HERO</span>
+                </div>
+
+                <!-- Feedback -->
+                <div class="service-icon" onclick="window.location.href='feedback.html'">
+                    <div class="icon-circle black">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <span class="service-label">FEEDBACK</span>
+                </div>
+
+                <!-- Login (shown only when not logged in) -->
+                <div class="service-icon" id="loginServiceIcon" onclick="window.location.href='login.html'" style="display: none;">
+                    <div class="icon-circle green">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </div>
+                    <span class="service-label">LOGIN</span>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="assets/js/app.js?v=20251105"></script>
+    <script>
+        // Check authentication and show appropriate buttons
+        document.addEventListener('DOMContentLoaded', () => {
+            const auth = AidNet.getAuth();
+            const loginBtn = document.getElementById('loginBtn');
+            const dashboardBtn = document.getElementById('dashboardBtn');
+            const loggedOutCTA = document.getElementById('loggedOutCTA');
+            const loggedInCTA = document.getElementById('loggedInCTA');
+            const welcomeUserName = document.getElementById('welcomeUserName');
+            const loginServiceIcon = document.getElementById('loginServiceIcon');
+            
+            if (auth && auth.id) {
+                // User is logged in
+                if (loginBtn) loginBtn.style.display = 'none';
+                if (dashboardBtn) {
+                    dashboardBtn.style.display = 'block';
+                    // Optionally show user name
+                    const userName = auth.name || 'User';
+                    dashboardBtn.innerHTML = `<i class="fas fa-user"></i> ${userName}`;
+                }
+                if (loggedOutCTA) loggedOutCTA.style.display = 'none';
+                if (loggedInCTA) {
+                    loggedInCTA.style.display = 'block';
+                    if (welcomeUserName) welcomeUserName.textContent = auth.name || 'User';
+                }
+                if (loginServiceIcon) loginServiceIcon.style.display = 'none';
+            } else {
+                // User is not logged in
+                if (loginBtn) loginBtn.style.display = 'block';
+                if (dashboardBtn) dashboardBtn.style.display = 'none';
+                if (loggedOutCTA) loggedOutCTA.style.display = 'block';
+                if (loggedInCTA) loggedInCTA.style.display = 'none';
+                if (loginServiceIcon) loginServiceIcon.style.display = 'flex';
+            }
+        });
+    </script>
+</body>
+</html>
+
+

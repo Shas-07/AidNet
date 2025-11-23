@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AidNet - First Aid Centers</title>
+    <link rel="stylesheet" href="assets/css/styles.css?v=20251105">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="logo-container">
+            <div class="logo-circle">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 4C17.373 4 12 9.373 12 16c0 6 10 16 12 18 2-2 12-12 12-18 0-6.627-5.373-12-12-12z" fill="white"/>
+                    <path d="M24 12v8M20 16h8" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+                    <rect x="12" y="32" width="24" height="12" rx="2" stroke="white" stroke-width="2" fill="none"/>
+                    <circle cx="16" cy="38" r="1" fill="white"/>
+                </svg>
+            </div>
+            <span class="logo-text">AidNet</span>
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="ambulance.html" class="nav-link">Ambulance</a>
+            <a href="firstaid.html" class="nav-link">FirstAid</a>
+            <a href="blood.html" class="nav-link">Blood</a>
+            <a href="profile.html" class="nav-link">Profile</a>
+            <a href="sos.html" class="nav-link active">SOS</a>
+            <a href="media.html" class="nav-link">Media</a>
+            <a href="hero.html" class="nav-link">HERO</a>
+            <a href="feedback.html" class="nav-link">Feedback</a>
+            <a href="fund.html" class="nav-link">Fund</a>
+        </div>
+    </nav>
+
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container" style="text-align: center; padding: 60px 20px;">
+            <div style="margin-bottom: 40px;">
+                <h2 style="color: var(--dark-blue); font-size: 28px; margin-bottom: 16px;">Emergency SOS</h2>
+                <p style="color: var(--text-muted); font-size: 16px;">Tap the button below to call emergency services</p>
+            </div>
+
+            <!-- Large Emergency Button -->
+            <div style="display: flex; justify-content: center; align-items: center; margin: 40px 0;">
+                <button class="emergency-button" onclick="makeEmergencyCall()" style="position: relative; width: 150px; height: 150px; font-size: 64px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                    <i class="fas fa-phone"></i>
+                    <span class="emergency-label" style="bottom: -40px; left: 50%; transform: translateX(-50%); position: absolute;">EMERGENCY</span>
+                </button>
+            </div>
+
+            <!-- Emergency Services Grid -->
+            <div class="reveal" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 80px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                <button class="btn-primary" onclick="callEmergency('102')" style="padding: 20px;">
+                    <i class="fas fa-ambulance" style="font-size: 24px; margin-bottom: 8px;"></i>
+                    <div>Ambulance</div>
+                    <div style="font-size: 12px; opacity: 0.9;">102</div>
+                </button>
+                <button class="btn-primary" onclick="callEmergency('108')" style="padding: 20px;">
+                    <i class="fas fa-phone-alt" style="font-size: 24px; margin-bottom: 8px;"></i>
+                    <div>Emergency</div>
+                    <div style="font-size: 12px; opacity: 0.9;">108</div>
+                </button>
+                <button class="btn-primary" onclick="window.location.href='report.html'" style="padding: 20px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-bottom: 8px;"></i>
+                    <div>Report</div>
+                    <div style="font-size: 12px; opacity: 0.9;">Emergency</div>
+                </button>
+                <button class="btn-primary" onclick="shareLocation()" style="padding: 20px;">
+                    <i class="fas fa-map-marker-alt" style="font-size: 24px; margin-bottom: 8px;"></i>
+                    <div>Share</div>
+                    <div style="font-size: 12px; opacity: 0.9;">Location</div>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script src="assets/js/app.js?v=20251105"></script>
+    <script>
+        function makeEmergencyCall() {
+            if (confirm('Call emergency services (108)?')) {
+                window.location.href = 'tel:108';
+            }
+        }
+
+        function callEmergency(number) {
+            if (confirm(`Call emergency number ${number}?`)) {
+                window.location.href = `tel:${number}`;
+            }
+        }
+
+        async function shareLocation() {
+            const auth = AidNet.getAuth();
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        const url = `https://www.google.com/maps?q=${lat},${lng}`;
+                        
+                        // If user is logged in, offer to auto-report emergency
+                        if (auth && auth.id) {
+                            const autoReport = confirm('Would you like to automatically report an emergency at your current location?\n\nClick OK to report, or Cancel to just share location.');
+                            
+                            if (autoReport) {
+                                try {
+                                    const res = await AidNet.post('report_emergency.php', {
+                                        user_id: auth.id,
+                                        title: 'Emergency SOS - Location Shared',
+                                        description: 'Emergency reported via SOS button. Location: ' + url,
+                                        lat: lat,
+                                        lng: lng,
+                                        severity: 'high'
+                                    });
+                                    
+                                    if (res.success) {
+                                        alert('Emergency reported successfully! Your location has been shared.');
+                                    } else {
+                                        alert('Emergency reported, but there was an error: ' + (res.error || 'Unknown error'));
+                                    }
+                                } catch (error) {
+                                    console.error('Error reporting emergency:', error);
+                                    alert('Error reporting emergency. Location: ' + url);
+                                }
+                            }
+                        }
+                        
+                        // Share location
+                        if (navigator.share) {
+                            try {
+                                await navigator.share({
+                                    title: 'My Emergency Location',
+                                    text: 'I need help at this location',
+                                    url: url
+                                });
+                            } catch (err) {
+                                if (err.name !== 'AbortError') {
+                                    alert(`Location: ${lat}, ${lng}\n\nShare this link: ${url}`);
+                                }
+                            }
+                        } else {
+                            alert(`Location: ${lat}, ${lng}\n\nShare this link: ${url}`);
+                        }
+                    },
+                    () => {
+                        alert('Unable to get your location. Please enable location services.');
+                    }
+                );
+            } else {
+                alert('Geolocation is not supported by your browser.');
+            }
+        }
+    </script>
+</body>
+</html>

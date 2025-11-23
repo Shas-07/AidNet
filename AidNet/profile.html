@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AidNet - Profile</title>
+    <link rel="stylesheet" href="assets/css/styles.css?v=20251105">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="logo-container">
+            <div class="logo-circle">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 4C17.373 4 12 9.373 12 16c0 6 10 16 12 18 2-2 12-12 12-18 0-6.627-5.373-12-12-12z" fill="white"/>
+                    <path d="M24 12v8M20 16h8" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+                    <rect x="12" y="32" width="24" height="12" rx="2" stroke="white" stroke-width="2" fill="none"/>
+                    <circle cx="16" cy="38" r="1" fill="white"/>
+                </svg>
+            </div>
+            <span class="logo-text">AidNet</span>
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="ambulance.html" class="nav-link">Ambulance</a>
+            <a href="firstaid.html" class="nav-link">FirstAid</a>
+            <a href="blood.html" class="nav-link">Blood</a>
+            <a href="profile.html" class="nav-link active">Profile</a>
+            <a href="sos.html" class="nav-link">SOS</a>
+            <a href="media.html" class="nav-link">Media</a>
+            <a href="hero.html" class="nav-link">HERO</a>
+            <a href="feedback.html" class="nav-link">Feedback</a>
+            <a href="fund.html" class="nav-link">Fund</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Wrapper added for centering -->
+      <!-- Wrapper added for centering -->
+<div class="profile-wrapper" style="
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 120px); /* adjusts for header + nav */
+    padding: 20px;
+    background: var(--light-blue);
+">
+
+            <div class="profile-card reveal" style="
+    max-width: 420px;
+    width: 100%;
+    background: var(--bg-white);
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+">
+
+                <div class="profile-header">
+                    <button class="back-button" onclick="window.location.href='index.html'">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div class="profile-name" id="profileName">Loading...</div>
+                    <div class="profile-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+
+                <div class="profile-details">
+                    <div class="profile-item">
+                        <i class="fas fa-user profile-item-icon"></i>
+                        <span class="profile-item-text">Name:</span>
+                        <span class="profile-item-value" id="userName">-</span>
+                    </div>
+
+                    <div class="profile-item">
+                        <i class="fas fa-calendar profile-item-icon"></i>
+                        <span class="profile-item-text">Birthday:</span>
+                        <span class="profile-item-value" id="userBirthday">Not set</span>
+                    </div>
+
+                    <div class="profile-item">
+                        <i class="fas fa-phone profile-item-icon"></i>
+                        <span class="profile-item-text">Phone Number:</span>
+                        <span class="profile-item-value" id="userPhone">Not set</span>
+                    </div>
+
+                    <div class="profile-item">
+                        <i class="fab fa-instagram profile-item-icon"></i>
+                        <span class="profile-item-text">Instagram Account:</span>
+                        <span class="profile-item-value" id="userInstagram">Not set</span>
+                    </div>
+
+                    <div class="profile-item">
+                        <i class="fas fa-envelope profile-item-icon"></i>
+                        <span class="profile-item-text">Email:</span>
+                        <span class="profile-item-value" id="userEmail">-</span>
+                    </div>
+
+                    <div class="profile-item">
+                        <i class="fas fa-eye profile-item-icon"></i>
+                        <span class="profile-item-text">Password:</span>
+                        <span class="profile-item-value">
+                            ••••••••
+                            <i class="fas fa-sync-alt" style="margin-left: 8px; cursor: pointer;" onclick="alert('Password reset feature coming soon!')"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <button class="edit-profile-btn" onclick="alert('Edit profile feature coming soon!')">
+                    Edit Profile
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script src="assets/js/app.js?v=20251105"></script>
+    <script>
+        // Load user data
+        const auth = AidNet.getAuth();
+        if (auth) {
+            document.getElementById('profileName').textContent = auth.name || 'User';
+            document.getElementById('userName').textContent = auth.name || '-';
+            document.getElementById('userEmail').textContent = auth.email || '-';
+            if (auth.role) {
+                document.getElementById('userRole').textContent = auth.role.charAt(0).toUpperCase() + auth.role.slice(1);
+            }
+        } else {
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

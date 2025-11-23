@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AidNet - Ambulance Services</title>
+    <link rel="stylesheet" href="assets/css/styles.css?v=20251105">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="logo-container">
+            <div class="logo-circle">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 4C17.373 4 12 9.373 12 16c0 6 10 16 12 18 2-2 12-12 12-18 0-6.627-5.373-12-12-12z" fill="white"/>
+                    <path d="M24 12v8M20 16h8" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+                    <rect x="12" y="32" width="24" height="12" rx="2" stroke="white" stroke-width="2" fill="none"/>
+                    <circle cx="16" cy="38" r="1" fill="white"/>
+                </svg>
+            </div>
+            <span class="logo-text">AidNet</span>
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="ambulance.html" class="nav-link active">Ambulance</a>
+            <a href="firstaid.html" class="nav-link">FirstAid</a>
+            <a href="blood.html" class="nav-link">Blood</a>
+            <a href="profile.html" class="nav-link">Profile</a>
+            <a href="sos.html" class="nav-link">SOS</a>
+            <a href="media.html" class="nav-link">Media</a>
+            <a href="hero.html" class="nav-link">HERO</a>
+            <a href="feedback.html" class="nav-link">Feedback</a>
+            <a href="fund.html" class="nav-link">Fund</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container reveal">
+            <!-- Search Bar -->
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search for ambulance services...">
+                <div class="voice-search"></div>
+            </div>
+
+            <!-- Map Container -->
+            <div class="map-container reveal">
+                <div class="map-placeholder">
+                    <div style="text-align: center;">
+                        <i class="fas fa-map-marked-alt" style="font-size: 48px; color: var(--primary-blue); margin-bottom: 12px;"></i>
+                        <p>Map View</p>
+                        <p style="font-size: 12px; margin-top: 8px;">Click to view nearby ambulance services</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ambulance Service Cards -->
+            <div id="ambulanceList" style="margin-top: 24px;">
+                <div class="service-card">
+                    <div class="card-icon red">
+                        <i class="fas fa-ambulance"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-title">Name: XYZ Ambulance</div>
+                        <div class="card-detail">Vehicle No: XX 00 X 0000</div>
+                        <div class="card-detail">Phone: 0000000000</div>
+                        <div class="card-detail">Hospital: ABC Hospital</div>
+                    </div>
+                    <button class="card-action" onclick="callAmbulance('0000000000')">
+                        <i class="fas fa-phone"></i>
+                    </button>
+                </div>
+
+                <div class="service-card">
+                    <div class="card-icon red">
+                        <i class="fas fa-ambulance"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-title">Name: Emergency Services</div>
+                        <div class="card-detail">Vehicle No: YY 11 Y 1111</div>
+                        <div class="card-detail">Phone: 1111111111</div>
+                        <div class="card-detail">Hospital: City Medical Center</div>
+                    </div>
+                    <button class="card-action" onclick="callAmbulance('1111111111')">
+                        <i class="fas fa-phone"></i>
+                    </button>
+                </div>
+
+                <div class="service-card">
+                    <div class="card-icon red">
+                        <i class="fas fa-ambulance"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-title">Name: Rapid Response</div>
+                        <div class="card-detail">Vehicle No: ZZ 22 Z 2222</div>
+                        <div class="card-detail">Phone: 2222222222</div>
+                        <div class="card-detail">Hospital: General Hospital</div>
+                    </div>
+                    <button class="card-action" onclick="callAmbulance('2222222222')">
+                        <i class="fas fa-phone"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="assets/js/app.js?v=20251105"></script>
+    <script>
+        function callAmbulance(phone) {
+            if (confirm(`Call ambulance service at ${phone}?`)) {
+                window.location.href = `tel:${phone}`;
+            }
+        }
+
+        // Load ambulance services from API
+        async function loadAmbulances() {
+            try {
+                // You can integrate with your API here
+                // const res = await AidNet.get('list_ambulances.php');
+                // if (res.success) { ... }
+            } catch (error) {
+                console.error('Error loading ambulances:', error);
+            }
+        }
+
+        // Load on page load
+        // loadAmbulances();
+    </script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AidNet - Report Emergency</title>
+    <link rel="stylesheet" href="assets/css/styles.css?v=20251105">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="logo-container">
+            <div class="logo-circle">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 4C17.373 4 12 9.373 12 16c0 6 10 16 12 18 2-2 12-12 12-18 0-6.627-5.373-12-12-12z" fill="white"/>
+                    <path d="M24 12v8M20 16h8" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+                    <rect x="12" y="32" width="24" height="12" rx="2" stroke="white" stroke-width="2" fill="none"/>
+                    <circle cx="16" cy="38" r="1" fill="white"/>
+                </svg>
+            </div>
+            <span class="logo-text">AidNet</span>
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="ambulance.html" class="nav-link">Ambulance</a>
+            <a href="firstaid.html" class="nav-link">FirstAid</a>
+            <a href="blood.html" class="nav-link">Blood</a>
+            <a href="profile.html" class="nav-link">Profile</a>
+            <a href="sos.html" class="nav-link">SOS</a>
+            <a href="media.html" class="nav-link">Media</a>
+            <a href="hero.html" class="nav-link">HERO</a>
+            <a href="feedback.html" class="nav-link">Feedback</a>
+            <a href="fund.html" class="nav-link">Fund</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container reveal">
+            <div class="form-section reveal">
+                <h2>Report an Emergency</h2>
+                <form id="reportForm">
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" name="title" required placeholder="Brief description of emergency">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea name="description" rows="4" required placeholder="Provide detailed information about the emergency"></textarea>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label>Latitude</label>
+                            <input type="number" step="any" name="lat" id="lat" required placeholder="0.0">
+                        </div>
+                        <div class="form-group">
+                            <label>Longitude</label>
+                            <input type="number" step="any" name="lng" id="lng" required placeholder="0.0">
+                        </div>
+                    </div>
+                    <button type="button" class="btn-secondary" onclick="getCurrentLocation()" style="margin-bottom: 16px;">
+                        <i class="fas fa-map-marker-alt"></i> Use Current Location
+                    </button>
+                    <div class="form-group">
+                        <label>Severity</label>
+                        <select name="severity" required>
+                            <option value="">Select severity</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary">Submit Report</button>
+                </form>
+                <div id="reportMessage" class="message hidden"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Emergency Button -->
+    <button class="emergency-button" onclick="window.location.href='sos.html'" title="Emergency">
+        <i class="fas fa-phone"></i>
+        <span class="emergency-label">EMERGENCY</span>
+    </button>
+
+    <script src="assets/js/app.js?v=20251105"></script>
+    <script src="assets/js/emergency.js?v=20251105"></script>
+    <script>
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        document.getElementById('lat').value = position.coords.latitude.toFixed(6);
+                        document.getElementById('lng').value = position.coords.longitude.toFixed(6);
+                    },
+                    () => {
+                        alert('Unable to get your location. Please enable location services.');
+                    }
+                );
+            } else {
+                alert('Geolocation is not supported by your browser.');
+            }
+        }
+
+        const reportForm = document.getElementById('reportForm');
+        const reportMessage = document.getElementById('reportMessage');
+        const auth = AidNet.getAuth();
+
+        if (!auth) {
+            window.location.href = 'login.html';
+        }
+
+        if (reportForm) {
+            reportForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                reportMessage.className = 'message hidden';
+                const form = new FormData(reportForm);
+                const payload = {
+                    user_id: auth.id,
+                    title: form.get('title'),
+                    description: form.get('description'),
+                    lat: parseFloat(form.get('lat')),
+                    lng: parseFloat(form.get('lng')),
+                    severity: form.get('severity')
+                };
+                const res = await AidNet.post('report_emergency.php', payload);
+                if (res.success) {
+                    reportMessage.className = 'message success';
+                    reportMessage.textContent = 'Emergency reported successfully!';
+                    reportForm.reset();
+                } else {
+                    reportMessage.className = 'message error';
+                    reportMessage.textContent = res.error || 'Failed to report emergency';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
+

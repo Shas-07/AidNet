@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AidNet - First Aid Centers</title>
+    <link rel="stylesheet" href="assets/css/styles.css?v=20251105">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="logo-container">
+            <div class="logo-circle">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 4C17.373 4 12 9.373 12 16c0 6 10 16 12 18 2-2 12-12 12-18 0-6.627-5.373-12-12-12z" fill="white"/>
+                    <path d="M24 12v8M20 16h8" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+                    <rect x="12" y="32" width="24" height="12" rx="2" stroke="white" stroke-width="2" fill="none"/>
+                    <circle cx="16" cy="38" r="1" fill="white"/>
+                </svg>
+            </div>
+            <span class="logo-text">AidNet</span>
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="ambulance.html" class="nav-link">Ambulance</a>
+            <a href="firstaid.html" class="nav-link active">FirstAid</a>
+            <a href="blood.html" class="nav-link">Blood</a>
+            <a href="profile.html" class="nav-link">Profile</a>
+            <a href="sos.html" class="nav-link">SOS</a>
+            <a href="media.html" class="nav-link">Media</a>
+            <a href="hero.html" class="nav-link">HERO</a>
+            <a href="feedback.html" class="nav-link">Feedback</a>
+            <a href="fund.html" class="nav-link">Fund</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container reveal">
+            <div class="reveal" style="max-width: 900px; margin: 0 auto 16px; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-lg);">
+                <iframe width="100%" height="100%" src="https://www.youtube.com/embed/gn6xt1ca8A0?autoplay=1&mute=1&rel=0&modestbranding=1" title="First Aid Kit Tutorial" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <!-- Search Bar -->
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search for hospitals and first aid centers...">
+                <div class="voice-search"></div>
+            </div>
+
+            <!-- Map Container -->
+            <div class="map-container reveal">
+                <div class="map-placeholder">
+                    <div style="text-align: center;">
+                        <i class="fas fa-hospital" style="font-size: 48px; color: var(--red-accent); margin-bottom: 12px;"></i>
+                        <p>Hospital & First Aid Locations</p>
+                        <p style="font-size: 12px; margin-top: 8px;">Find nearby medical facilities</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hospital/First Aid Cards -->
+            <div id="firstaidList" style="margin-top: 24px;">
+                <div class="service-card">
+                    <div class="card-icon blue">
+                        <i class="fas fa-hospital"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-title">Apollo Clinic</div>
+                        <div class="card-detail">24/7 Emergency Services</div>
+                        <div class="card-detail">Distance: 1.2 km</div>
+                        <div class="card-detail">Phone: 1234567890</div>
+                    </div>
+                    <button class="card-action" onclick="callHospital('1234567890')">
+                        <i class="fas fa-phone"></i>
+                    </button>
+                </div>
+
+                <div class="service-card">
+                    <div class="card-icon blue">
+                        <i class="fas fa-hospital"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-title">Manipal Hospital</div>
+                        <div class="card-detail">Multi-specialty Hospital</div>
+                        <div class="card-detail">Distance: 2.5 km</div>
+                        <div class="card-detail">Phone: 9876543210</div>
+                    </div>
+                    <button class="card-action" onclick="callHospital('9876543210')">
+                        <i class="fas fa-phone"></i>
+                    </button>
+                </div>
+
+                <div class="service-card">
+                    <div class="card-icon blue">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-title">First Aid Center</div>
+                        <div class="card-detail">Immediate Medical Assistance</div>
+                        <div class="card-detail">Distance: 0.8 km</div>
+                        <div class="card-detail">Phone: 5555555555</div>
+                    </div>
+                    <button class="card-action" onclick="callHospital('5555555555')">
+                        <i class="fas fa-phone"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="assets/js/app.js?v=20251105"></script>
+    <script>
+        function callHospital(phone) {
+            if (confirm(`Call hospital at ${phone}?`)) {
+                window.location.href = `tel:${phone}`;
+            }
+        }
+    </script>
+</body>
+</html>

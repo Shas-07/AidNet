@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AidNet - Blood Banks</title>
+    <link rel="stylesheet" href="assets/css/styles.css?v=20251105">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+body { font-family: "Poppins", sans-serif; background: #f9fafb; color: #111827; margin:0; }
+header { background: #1e40af; color:#fff; padding:16px; text-align:center; font-size:22px; font-weight:600; }
+.container { padding:16px; text-align:center; }
+.btn { display:inline-block; background:#2563eb; color:#fff; padding:10px 18px; border:none; border-radius:8px; cursor:pointer; font-size:16px; font-weight:500; transition:0.2s; }
+.btn:hover { background:#1e3a8a; }
+#map { width:100%; height:420px; border-radius:12px; margin-top:14px; }
+.bloodbank-list { margin-top:22px; text-align:left; }
+.bloodbank-card { background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1); margin-bottom:12px; padding:12px 16px; transition: transform 0.2s; }
+.bloodbank-card:hover { transform: scale(1.02); }
+.bloodbank-name { font-weight:700; color:#1e40af; margin-bottom:4px; }
+.bloodbank-address { color:#64748b; font-size:0.9rem; margin-bottom:8px; }
+.bloodbank-actions button { margin-right:8px; padding:6px 10px; background:#2563eb; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:0.85rem; }
+.bloodbank-actions button:hover { background:#1e3a8a; }
+.stock-item { font-size:0.8rem; padding:2px 6px; border-radius:4px; margin-right:4px; }
+#donorSection { background:#fff; margin:30px auto; padding:20px; border-radius:12px; box-shadow:0 3px 10px rgba(0,0,0,0.1); max-width:550px; }
+#donorSection h2 { color:#1e40af; margin-bottom:12px; }
+.search-donor { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:20px; }
+select { padding:10px; border:1px solid #d1d5db; border-radius:8px; font-size:15px; outline:none; min-width:180px; }
+select:focus { border-color:#2563eb; }
+#findBtn { background:#2563eb; color:white; padding:10px 16px; border:none; border-radius:8px; font-size:16px; cursor:pointer; transition:0.2s; }
+#findBtn:hover { background:#1e3a8a; }
+.donor-results { margin-top:15px; text-align:left; }
+.donor-card { background:#f9fafb; border:1px solid #e2e8f0; border-radius:10px; padding:14px; margin-bottom:10px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
+.donor-card h3 { margin:0 0 5px; color:#1e40af; }
+.donor-card p { margin:3px 0; color:#334155; font-size:0.9rem; }
+.actions { display:flex; justify-content:center; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+</style>
+</head>
+<body>
+   <!-- Header -->
+    <header class="app-header">
+        <div class="logo-container">
+            <div class="logo-circle">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 4C17.373 4 12 9.373 12 16c0 6 10 16 12 18 2-2 12-12 12-18 0-6.627-5.373-12-12-12z" fill="white"/>
+                    <path d="M24 12v8M20 16h8" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+                    <rect x="12" y="32" width="24" height="12" rx="2" stroke="white" stroke-width="2" fill="none"/>
+                    <circle cx="16" cy="38" r="1" fill="white"/>
+                </svg>
+            </div>
+            <span class="logo-text">AidNet</span>
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="ambulance.html" class="nav-link">Ambulance</a>
+            <a href="firstaid.html" class="nav-link">FirstAid</a>
+            <a href="blood.html" class="nav-link active">Blood</a>
+            <a href="profile.html" class="nav-link">Profile</a>
+            <a href="sos.html" class="nav-link">SOS</a>
+            <a href="media.html" class="nav-link">Media</a>
+            <a href="hero.html" class="nav-link">HERO</a>
+            <a href="feedback.html" class="nav-link">Feedback</a>
+            <a href="fund.html" class="nav-link">Fund</a>
+        </div>
+    </nav>
+
+<div class="container">
+  <div class="actions">
+    <button class="btn" onclick="scrollToDonor()"><i class="fas fa-search"></i> Find a Donor</button>
+    <button class="btn" onclick="openGoogleMaps()"><i class="fas fa-map-marker-alt"></i> Open in Google Maps</button>
+  </div>
+
+  <div id="map"></div>
+
+  <section id="bloodCompatibility" style="max-width:600px; margin:30px auto; padding:20px; background:#fff; border-radius:12px; box-shadow:0 3px 10px rgba(0,0,0,0.1);">
+  <h2 style="color:#1e40af; text-align:center; margin-bottom:16px;">Blood Compatibility Chart</h2>
+  <table style="width:100%; border-collapse:collapse; text-align:center; font-size:14px;">
+    <thead>
+      <tr style="background:#2563eb; color:#fff;">
+        <th>Blood Group</th>
+        <th>Can Donate To</th>
+        <th>Can Receive From</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>A+</td>
+        <td>A+, AB+</td>
+        <td>A+, A-, O+, O-</td>
+      </tr>
+      <tr style="background:#f3f4f6;">
+        <td>A-</td>
+        <td>A+, A-, AB+, AB-</td>
+        <td>A-, O-</td>
+      </tr>
+      <tr>
+        <td>B+</td>
+        <td>B+, AB+</td>
+        <td>B+, B-, O+, O-</td>
+      </tr>
+      <tr style="background:#f3f4f6;">
+        <td>B-</td>
+        <td>B+, B-, AB+, AB-</td>
+        <td>B-, O-</td>
+      </tr>
+      <tr>
+        <td>O+</td>
+        <td>O+, A+, B+, AB+</td>
+        <td>O+, O-</td>
+      </tr>
+      <tr style="background:#f3f4f6;">
+        <td>O-</td>
+        <td>Everyone (Universal Donor)</td>
+        <td>O-</td>
+      </tr>
+      <tr>
+        <td>AB+</td>
+        <td>AB+</td>
+        <td>Everyone (Universal Receiver)</td>
+      </tr>
+      <tr style="background:#f3f4f6;">
+        <td>AB-</td>
+        <td>AB+, AB-</td>
+        <td>AB-, A-, B-, O-</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+  <div class="bloodbank-list" id="bloodbankList">
+    <p style="text-align:center;color:#6b7280;">Fetching nearby blood banks...</p>
+  </div>
+</div>
+
+<section id="donorSection">
+  <h2>Find a Blood Donor</h2>
+  <div class="search-donor">
+    <select id="bloodGroupSelect">
+      <option value="">Select Blood Group</option>
+      <option value="A+">A+</option>
+      <option value="A-">A-</option>
+      <option value="B+">B+</option>
+      <option value="B-">B-</option>
+      <option value="O+">O+</option>
+      <option value="O-">O-</option>
+      <option value="AB+">AB+</option>
+      <option value="AB-">AB-</option>
+    </select>
+    <button id="findBtn"><i class="fas fa-search"></i> Find</button>
+  </div>
+  <div id="donorResults" class="donor-results">
+    <p style="text-align:center;color:#6b7280;">Select a blood group to see donors.</p>
+  </div>
+</section>
+
+
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAhpDnKreHwKyLjqLDb_bracH087CJGEOA&libraries=places" async></script>
+<script>
+let map, service, infowindow;
+const listContainer = document.getElementById("bloodbankList");
+
+// Dummy stock for demo (first 3 banks)
+const dummyStock = [
+  { blood_group: "A+", units: 15 },
+  { blood_group: "B+", units: 8 },
+  { blood_group: "O+", units: 25 },
+  { blood_group: "AB+", units: 5 }
+];
+
+function buildStockHtml(stockArray) {
+  return stockArray.map(item => {
+    const units = Number(item.units) || 0;
+    let bg, text;
+    if (units === 0) { bg = "#fee2e2"; text = "#991b1b"; }
+    else if (units < 10) { bg = "#fee2b8"; text = "#92400e"; }
+    else if (units < 20) { bg = "#ecfccb"; text = "#365314"; }
+    else { bg = "#dcfce7"; text = "#14532d"; }
+    return `<span class="stock-item" style="background:${bg};color:${text};">${item.blood_group}: ${units} units</span>`;
+  }).join(" ");
+}
+
+function initMap() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(position => {
+      const userLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+      map = new google.maps.Map(document.getElementById("map"), { center: userLocation, zoom: 14 });
+      infowindow = new google.maps.InfoWindow();
+      service = new google.maps.places.PlacesService(map);
+      searchNearbyBloodBanks(userLocation);
+    }, () => {
+      const defaultLocation = new google.maps.LatLng(15.43, 75.63); // Gadag
+      map = new google.maps.Map(document.getElementById("map"), { center: defaultLocation, zoom: 14 });
+      infowindow = new google.maps.InfoWindow();
+      service = new google.maps.places.PlacesService(map);
+      searchNearbyBloodBanks(defaultLocation);
+    });
+  } else alert("Geolocation not supported.");
+}
+
+function searchNearbyBloodBanks(location) {
+  const request = { location: location, radius: 5000, keyword: 'blood bank' };
+  service.nearbySearch(request, (results, status) => {
+    if (status === google.maps.places.PlacesServiceStatus.OK) displayBloodBanks(results);
+    else listContainer.innerHTML = "<p style='text-align:center;color:#ef4444;'>No nearby blood banks found.</p>";
+  });
+}
+
+async function displayBloodBanks(results) {
+  listContainer.innerHTML = '';
+  for (let i = 0; i < results.length; i++) {
+    const place = results[i];
+    const marker = new google.maps.Marker({ map: map, position: place.geometry.location, title: place.name });
+    marker.addListener("click", () => {
+      infowindow.setContent(`<strong>${place.name}</strong><br>${place.vicinity || ''}`);
+      infowindow.open(map, marker);
+    });
+
+    let stockHTML = "<p style='color:#6b7280;margin:0'>Stock unavailable</p>";
+    if (i < 3) stockHTML = buildStockHtml(dummyStock);
+
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}&query_place_id=${place.place_id}`;
+
+    const card = document.createElement("div");
+    card.className = "bloodbank-card";
+    card.innerHTML = `
+      <div class="bloodbank-name">${place.name}</div>
+      <div class="bloodbank-address">${place.vicinity || "Address not available"}</div>
+      <div class="stock-info" style="margin:6px 0;">${stockHTML}</div>
+      <div class="bloodbank-actions">
+        <button onclick="window.open('${mapsUrl}','_blank')"><i class="fas fa-directions"></i> Directions</button>
+        <button onclick="alert('Phone number not available. Check in Maps')"><i class="fas fa-phone"></i> Call</button>
+      </div>
+    `;
+    listContainer.appendChild(card);
+  }
+}
+
+function scrollToDonor() {
+  document.getElementById("donorSection").scrollIntoView({ behavior: "smooth" });
+}
+
+function openGoogleMaps() {
+  window.open("https://www.google.com/maps/search/blood+bank+near+me", "_blank");
+}
+
+document.getElementById("findBtn").addEventListener("click", async () => {
+  const group = document.getElementById("bloodGroupSelect").value;
+  const donorResults = document.getElementById("donorResults");
+  if (!group) { donorResults.innerHTML = "<p style='text-align:center;color:#ef4444;'>Please select a blood group.</p>"; return; }
+  donorResults.innerHTML = "<p style='text-align:center;color:#6b7280;'>Searching donors...</p>";
+  try {
+    const res = await fetch(`http://localhost/aidnet/get_donors.php?blood_group=${encodeURIComponent(group)}`);
+    const donors = await res.json();
+    if (!donors.length) { donorResults.innerHTML = "<p style='text-align:center;color:#6b7280;'>No donors found for this group.</p>"; return; }
+    donorResults.innerHTML = "";
+    donors.forEach(d => {
+      donorResults.innerHTML += `
+        <div class="donor-card">
+          <h3>${d.name}</h3>
+          <p><strong>Blood Group:</strong> ${d.blood_group}</p>
+          <p><strong>Location:</strong> ${d.location}</p>
+          <p><strong>Contact:</strong> ${d.phone}</p>
+        </div>
+      `;
+    });
+  } catch (err) {
+    donorResults.innerHTML = "<p style='text-align:center;color:#ef4444;'>Error fetching donors.</p>";
+    console.error(err);
+  }
+});
+
+function loadScript() {
+  if (typeof google !== "undefined" && google.maps && google.maps.places) initMap();
+  else setTimeout(loadScript, 300);
+}
+loadScript();
+</script>
+</body>
+</html>

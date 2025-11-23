@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AidNet - Nearby Donors</title>
+    <link rel="stylesheet" href="assets/css/styles.css?v=20251105">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .donor-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        @media (min-width: 640px) { .donor-grid { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="logo-container" onclick="window.location.href='index.html'" style="cursor:pointer;">
+            <div class="logo-circle">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 4C17.373 4 12 9.373 12 16c0 6 10 16 12 18 2-2 12-12 12-18 0-6.627-5.373-12-12-12z" fill="white"/>
+                    <path d="M24 12v8M20 16h8" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+                    <rect x="12" y="32" width="24" height="12" rx="2" stroke="white" stroke-width="2" fill="none"/>
+                    <circle cx="16" cy="38" r="1" fill="white"/>
+                </svg>
+            </div>
+            <span class="logo-text">AidNet</span>
+        </div>
+    </header>
+
+    <nav class="nav-bar">
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="ambulance.html" class="nav-link">Ambulance</a>
+            <a href="firstaid.html" class="nav-link">FirstAid</a>
+            <a href="blood.html" class="nav-link active">Blood</a>
+            <a href="profile.html" class="nav-link">Profile</a>
+            <a href="sos.html" class="nav-link">SOS</a>
+            <a href="media.html" class="nav-link">Media</a>
+            <a href="hero.html" class="nav-link">HERO</a>
+            <a href="feedback.html" class="nav-link">Feedback</a>
+            <a href="fund.html" class="nav-link">Fund</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container reveal">
+            <div style="text-align:center; margin-bottom: 16px;">
+                <h2 style="color: var(--dark-blue);">Nearby Donors</h2>
+                <p class="reveal" style="color: var(--text-muted);">Based on your location, showing potential donors (demo)</p>
+                <button class="btn-primary" style="max-width:320px; margin: 12px auto;" onclick="refreshLocation()">
+                    <i class="fas fa-location-arrow"></i> Use Current Location
+                </button>
+            </div>
+
+            <div id="locationInfo" class="message" style="display:none;"></div>
+
+            <div id="donorList" class="donor-grid"></div>
+        </div>
+    </main>
+
+    <button class="emergency-button" onclick="window.location.href='sos.html'" title="Emergency">
+        <i class="fas fa-phone"></i>
+        <span class="emergency-label">EMERGENCY</span>
+    </button>
+
+    <script src="assets/js/app.js?v=20251105"></script>
+    <script>
+        async function refreshLocation() {
+            const info = document.getElementById('locationInfo');
+            const list = document.getElementById('donorList');
+            const render = (lat, lng) => {
+                info.style.display = 'block';
+                info.className = 'message success';
+                info.textContent = `Location set: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+            };
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async pos => {
+                        const lat = pos.coords.latitude, lng = pos.coords.longitude;
+                        render(lat, lng);
+                        list.innerHTML = '<div class="service-card"><div class="card-content"><div class="skeleton skeleton-text" style="width:70%"></div><div class="skeleton skeleton-text" style="width:50%"></div></div></div>';
+                        try {
+                            const res = await fetch(`api/nearby_donors.php?lat=${lat}&lng=${lng}&radius_km=25`);
+                            const data = await res.json();
+                            if (data.success) {
+                                const rows = data.data;
+                                if (!rows.length) {
+                                    list.innerHTML = '<div class="service-card"><div class="card-content"><div class="card-title">No donors found nearby.</div><div class="card-detail">Try increasing radius or updating your profile blood group.</div></div></div>';
+                                } else {
+                                    list.innerHTML = rows.map(d => `
+                                        <div class="service-card reveal">
+                                            <div class="card-icon ${d.blood_group && d.blood_group.includes('-') ? 'black' : 'green'}"><i class="fas fa-user"></i></div>
+                                            <div class="card-content">
+                                                <div class="card-title">${d.name} · Blood Group: <strong>${d.blood_group || '-'}</strong></div>
+                                                <div class="card-detail">${d.distance_km} km away · Role: ${d.role}</div>
+                                            </div>
+                                            <button class="card-action" title="Call"><i class="fas fa-phone"></i></button>
+                                        </div>
+                                    `).join('');
+                                }
+                            } else {
+                                list.innerHTML = '<div class="service-card"><div class="card-content"><div class="card-title">Failed to load donors</div></div></div>';
+                            }
+                        } catch (e) {
+                            list.innerHTML = '<div class="service-card"><div class="card-content"><div class="card-title">Error loading donors</div></div></div>';
+                        }
+                    },
+                    () => { info.style.display = 'block'; info.className='message error'; info.textContent='Unable to get location.'; },
+                    { enableHighAccuracy: true, timeout: 8000 }
+                );
+            } else {
+                info.style.display = 'block'; info.className='message error'; info.textContent='Geolocation not supported.';
+            }
+        }
+        // Auto-run once for convenience
+        refreshLocation();
+    </script>
+</body>
+</html>
+
+

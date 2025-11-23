@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AidNet - Fundraisers</title>
+  <link rel="stylesheet" href="assets/css/styles.css?v=20251105">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .fundraiser-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      padding: 16px;
+    }
+    .fundraiser-card {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .fundraiser-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    }
+    .fundraiser-img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+    .fundraiser-content {
+      padding: 16px;
+    }
+    .fundraiser-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--dark-blue);
+      margin-bottom: 8px;
+    }
+    .fundraiser-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      height: 60px;
+      overflow: hidden;
+    }
+    .fundraiser-progress {
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 5px;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+    .fundraiser-bar {
+      height: 100%;
+      background: var(--green-accent);
+      transition: width 0.3s ease;
+    }
+    .fundraiser-amounts {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: var(--text-dark);
+      margin-bottom: 12px;
+    }
+    .btn-fund {
+      width: 100%;
+      background: var(--primary-blue);
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s ease;
+    }
+    .btn-fund:hover {
+      background: var(--dark-blue);
+    }
+  </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="app-header">
+        <div class="logo-container">
+            <div class="logo-circle">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 4C17.373 4 12 9.373 12 16c0 6 10 16 12 18 2-2 12-12 12-18 0-6.627-5.373-12-12-12z" fill="white"/>
+                    <path d="M24 12v8M20 16h8" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+                    <rect x="12" y="32" width="24" height="12" rx="2" stroke="white" stroke-width="2" fill="none"/>
+                    <circle cx="16" cy="38" r="1" fill="white"/>
+                </svg>
+            </div>
+            <span class="logo-text">AidNet</span>
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="ambulance.html" class="nav-link">Ambulance</a>
+            <a href="firstaid.html" class="nav-link">FirstAid</a>
+            <a href="blood.html" class="nav-link">Blood</a>
+            <a href="profile.html" class="nav-link">Profile</a>
+            <a href="sos.html" class="nav-link">SOS</a>
+            <a href="media.html" class="nav-link">Media</a>
+            <a href="hero.html" class="nav-link">HERO</a>
+            <a href="feedback.html" class="nav-link">Feedback</a>
+            <a href="fund.html" class="nav-link active">Fund</a>
+        </div>
+    </nav>
+
+
+  <!-- Main -->
+  <main class="main-content">
+    <div class="container">
+      <h2 style="color: var(--dark-blue); text-align: center; margin-top: 20px;">Ongoing Fundraisers</h2>
+      <div id="fundraiserList" class="fundraiser-grid"></div>
+    </div>
+  </main>
+
+  <!-- Emergency Floating Button -->
+  <button class="emergency-button" onclick="window.location.href='sos.html'" title="Emergency">
+    <i class="fas fa-phone"></i>
+    <span class="emergency-label">EMERGENCY</span>
+  </button>
+
+  <script src="assets/js/app.js?v=20251105"></script>
+  <script>
+    const listContainer = document.getElementById('fundraiserList');
+
+    async function loadFundraisers() {
+      const res = await AidNet.get('list_fundraisers.php');
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        listContainer.innerHTML = res.data.map(f => {
+          const raised = f.raised || 0;
+          const target = f.target_amount;
+          const progress = Math.min((raised / target) * 100, 100);
+          const imgUrl = f.image_url || 'assets/images/fund_default.jpg'; // fallback image
+
+          return `
+            <div class="fundraiser-card">
+              <img src="${imgUrl}" alt="Fundraiser" class="fundraiser-img">
+              <div class="fundraiser-content">
+                <div class="fundraiser-title">${f.title}</div>
+                <div class="fundraiser-desc">${f.description}</div>
+                <div class="fundraiser-progress">
+                  <div class="fundraiser-bar" style="width:${progress}%;"></div>
+                </div>
+                <div class="fundraiser-amounts">
+                  <span>Raised: $${raised}</span>
+                  <span>Goal: $${target}</span>
+                </div>
+                <button class="btn-fund" onclick="redirectToGPay('${f.title}', ${raised}, ${target})">
+                  <i class="fas fa-hand-holding-usd"></i> Fund Now
+                </button>
+              </div>
+            </div>`;
+        }).join('');
+      } else {
+        listContainer.innerHTML = `
+          <div style="text-align:center; color:var(--text-muted); margin-top:40px;">
+            <i class="fas fa-heart-broken" style="font-size:2rem;"></i>
+            <p>No fundraisers available right now.</p>
+          </div>`;
+      }
+    }
+
+    function redirectToGPay(title, raised, target) {
+      // Demo redirect to GPay link
+      const gpayUrl = `https://gpay.app.goo.gl/pay?amount=${target - raised}&note=${encodeURIComponent(title)}`;
+      window.open(gpayUrl, '_blank');
+    }
+
+    loadFundraisers();
+  </script>
+</body>
+</html>
