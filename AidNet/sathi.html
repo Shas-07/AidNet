@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AidNet - Sathi AI Assistant</title>
+    <link rel="stylesheet" href="assets/css/styles.css?v=20251105">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
+        body { font-family: "Poppins", sans-serif; background: #eef2ff; color: #111827; }
+        header { background: #1e40af; color:#fff; padding:16px; text-align:center; font-size:22px; font-weight:600; }
+        .container { max-width: 1100px; margin: 20px auto; padding: 16px; }
+
+        .sathi-shell {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sathi-hero {
+            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 40%, #0ea5e9 100%);
+            border-radius: 18px;
+            padding: 18px 18px 20px;
+            color: #e5f2ff;
+            box-shadow: 0 16px 40px rgba(15,23,42,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sathi-hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 0% 0%, rgba(251,191,36,0.25) 0, transparent 60%),
+                radial-gradient(circle at 100% 100%, rgba(59,130,246,0.2) 0, transparent 55%);
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        .sathi-hero-inner {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sathi-hero-main {
+            flex: 1 1 260px;
+        }
+
+        .sathi-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(15,118,110,0.18);
+            color: #e0f2fe;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .sathi-pill i { font-size: 11px; }
+
+        .sathi-title {
+            margin: 10px 0 4px;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #f9fafb;
+        }
+
+        .sathi-subtitle {
+            margin: 0 0 10px;
+            font-size: 13px;
+            color: #e5e7eb;
+        }
+
+        .sathi-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .sathi-tag {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: rgba(15,23,42,0.35);
+            color: #e5e7eb;
+        }
+
+        .sathi-quick-prompts {
+            flex: 1 1 260px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 11px;
+        }
+
+        .sathi-quick-prompts-title {
+            font-weight: 600;
+            color: #e5e7eb;
+        }
+
+        .sathi-quick-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .sathi-quick-chip {
+            font-size: 11px;
+            padding: 5px 9px;
+            border-radius: 999px;
+            background: rgba(15,23,42,0.5);
+            color: #e5e7eb;
+            cursor: pointer;
+            border: 1px solid rgba(148,163,184,0.4);
+        }
+
+        .sathi-quick-chip:hover {
+            background: rgba(15,23,42,0.7);
+        }
+
+        .disclaimer {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 12px 14px;
+            margin: 0;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #92400e;
+        }
+
+        .disclaimer strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .chat-container {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 16px 40px rgba(15,23,42,0.15);
+            height: calc(100vh - 280px);
+            min-height: 480px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 60%, #4f46e5 100%);
+            color: white;
+            padding: 16px 18px;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .chat-header-main {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-header .bot-icon {
+            width: 46px;
+            height: 46px;
+            background: radial-gradient(circle at 30% 20%, rgba(250,250,250,0.95), rgba(191,219,254,0.9));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #1d4ed8;
+            box-shadow: 0 10px 25px rgba(15,23,42,0.35);
+        }
+
+        .chat-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .chat-header p {
+            margin: 2px 0 0;
+            font-size: 12px;
+            opacity: 0.95;
+        }
+
+        .chat-header-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            font-size: 11px;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: rgba(22,163,74,0.18);
+            color: #bbf7d0;
+            font-weight: 500;
+        }
+
+        .status-pill i {
+            font-size: 9px;
+            color: #22c55e;
+        }
+
+        .status-note {
+            opacity: 0.85;
+        }
+
+        .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+        .message { display: flex; gap: 12px; animation: fadeIn 0.3s ease-in; }
+        .message.user { flex-direction: row-reverse; }
+        .message-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .message.user .message-avatar { background: #2563eb; color: white; }
+        .message.bot .message-avatar { background: #10b981; color: white; }
+        .message-content { max-width: 70%; padding: 12px 16px; border-radius: 12px; word-wrap: break-word; }
+        .message.user .message-content { background: #2563eb; color: white; border-bottom-right-radius: 4px; }
+        .message.bot .message-content { background: #f3f4f6; color: #111827; border-bottom-left-radius: 4px; }
+        .message-image { max-width: 100%; border-radius: 8px; margin-top: 8px; }
+        .chat-input-area { padding: 16px; border-top: 1px solid #e5e7eb; display: flex; gap: 12px; align-items: flex-end; }
+        .image-upload-btn { padding: 10px 16px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        .image-upload-btn:hover { background: #059669; }
+        .image-upload-btn input { display: none; }
+        .chat-input { flex: 1; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 15px; outline: none; resize: none; min-height: 50px; max-height: 120px; font-family: inherit; }
+        .chat-input:focus { border-color: #2563eb; }
+        .send-btn { padding: 12px 24px; background: #2563eb; color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 600; transition: 0.2s; }
+        .send-btn:hover { background: #1e40af; }
+        .send-btn:disabled { background: #9ca3af; cursor: not-allowed; }
+        .typing-indicator { display: flex; gap: 4px; padding: 12px 16px; }
+        .typing-indicator span { width: 8px; height: 8px; background: #9ca3af; border-radius: 50%; animation: typing 1.4s infinite; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes typing { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-10px); } }
+        .uploaded-image-preview { max-width: 200px; border-radius: 8px; margin-top: 8px; }
+
+        @media (max-width: 900px) {
+            .chat-container {
+                height: auto;
+                min-height: 440px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="logo-container">
+            <div class="logo-circle">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 4C17.373 4 12 9.373 12 16c0 6 10 16 12 18 2-2 12-12 12-18 0-6.627-5.373-12-12-12z" fill="white"/>
+                    <path d="M24 12v8M20 16h8" stroke="#1e40af" stroke-width="2.5" stroke-linecap="round"/>
+                    <rect x="12" y="32" width="24" height="12" rx="2" stroke="white" stroke-width="2" fill="none"/>
+                    <circle cx="16" cy="38" r="1" fill="white"/>
+                </svg>
+            </div>
+            <span class="logo-text">AidNet</span>
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="ambulance.html" class="nav-link">Ambulance</a>
+            <a href="firstaid.html" class="nav-link">FirstAid</a>
+            <a href="blood.html" class="nav-link">Blood</a>
+            <a href="profile.html" class="nav-link">Profile</a>
+            <a href="sos.html" class="nav-link">SOS</a>
+            <a href="media.html" class="nav-link">Media</a>
+            <a href="hero.html" class="nav-link">HERO</a>
+            <a href="feedback.html" class="nav-link">Feedback</a>
+            <a href="fund.html" class="nav-link">Fund</a>
+            <a href="sathi.html" class="nav-link active">Sathi</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="sathi-shell">
+            <section class="sathi-hero">
+                <div class="sathi-hero-inner">
+                    <div class="sathi-hero-main">
+                        <div class="sathi-pill">
+                            <i class="fas fa-heartbeat"></i>
+                            Sathi Health Companion
+                        </div>
+                        <h1 class="sathi-title">Ask health questions in simple language</h1>
+                        <p class="sathi-subtitle">
+                            Get clear information about common medicines, symptoms and first aid – all in one place.
+                        </p>
+                        <div class="sathi-tags">
+                            <span class="sathi-tag">Medicines in India</span>
+                            <span class="sathi-tag">Fever &amp; cold care</span>
+                            <span class="sathi-tag">Injury &amp; wound tips</span>
+                            <span class="sathi-tag">Skin &amp; stomach issues</span>
+                        </div>
+                    </div>
+                    <div class="sathi-quick-prompts">
+                        <span class="sathi-quick-prompts-title">Try asking:</span>
+                        <div class="sathi-quick-list">
+                            <button class="sathi-quick-chip" onclick="quickAsk('What is Dolo 650 used for?')">Dolo 650 use</button>
+                            <button class="sathi-quick-chip" onclick="quickAsk('How to manage fever at home?')">Fever at home</button>
+                            <button class="sathi-quick-chip" onclick="quickAsk('First aid for a cut on finger?')">Cut first aid</button>
+                            <button class="sathi-quick-chip" onclick="quickAsk('Side effects of ibuprofen?')">Ibuprofen side effects</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <div class="disclaimer">
+                    <strong>⚠️ Medical Disclaimer</strong>
+                    Sathi shares general health information only. It does not replace professional medical advice,
+                    diagnosis, or treatment. Always consult a qualified healthcare provider for medical concerns
+                    or emergencies.
+                </div>
+
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <div class="chat-header-main">
+                            <div class="bot-icon">
+                                <i class="fas fa-user-md"></i>
+                            </div>
+                            <div>
+                                <h2>Sathi • AI Health Assistant</h2>
+                                <p>Ask about medicines, symptoms, first aid, or upload a photo for general guidance.</p>
+                            </div>
+                        </div>
+                        <div class="chat-header-meta">
+                            <div class="status-pill">
+                                <i class="fas fa-circle"></i>
+                                Online
+                            </div>
+                            <span class="status-note">Intent-based health chatbot - always available</span>
+                        </div>
+                    </div>
+
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message bot">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <p>Hello! I'm Sathi, your AI health assistant. I can help you with:</p>
+                                <ul style="margin: 8px 0; padding-left: 20px;">
+                                    <li>Explaining medicines and their common uses</li>
+                                    <li>General suggestions for symptoms and minor issues</li>
+                                    <li>First‑aid style guidance for injuries</li>
+                                    <li>High‑level feedback on skin or injury photos</li>
+                                </ul>
+                                <p style="margin-top: 8px;">I don't diagnose or prescribe. For serious or worrying
+                                    symptoms, please contact a doctor or emergency services.</p>
+                                <p style="margin-top: 8px;">Type your question below or upload a photo to begin.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-area">
+                        <label class="image-upload-btn" title="Upload injury or skin photo">
+                            <i class="fas fa-image"></i>
+                            <input type="file" id="imageInput" accept="image/*" />
+                        </label>
+                        <textarea
+                            id="chatInput"
+                            class="chat-input"
+                            placeholder="Ask about a medicine, symptom, first aid step, or describe what you see in an image..."
+                            rows="1"
+                        ></textarea>
+                        <button id="sendBtn" class="send-btn">
+                            <i class="fas fa-paper-plane"></i> Ask Sathi
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const imageInput = document.getElementById('imageInput');
+        let currentImage = null;
+
+        // Auto-resize textarea
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Handle Enter key
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Image upload
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    currentImage = event.target.result;
+                    addUserMessage('I uploaded an image. Can you analyze it?', currentImage);
+                    analyzeImage(currentImage);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Send button
+        sendBtn.addEventListener('click', sendMessage);
+
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message && !currentImage) return;
+
+            if (message) {
+                addUserMessage(message);
+                chatInput.value = '';
+                chatInput.style.height = 'auto';
+                processMessage(message);
+            }
+        }
+
+        function quickAsk(text) {
+            chatInput.value = text;
+            sendMessage();
+        }
+
+        function addUserMessage(text, image = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user';
+            let content = `<div class="message-content"><p>${escapeHtml(text)}</p>`;
+            if (image) {
+                content += `<img src="${image}" class="uploaded-image-preview" alt="Uploaded image" />`;
+            }
+            content += '</div>';
+            messageDiv.innerHTML = `
+                <div class="message-avatar"><i class="fas fa-user"></i></div>
+                ${content}
+            `;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            currentImage = null;
+            imageInput.value = '';
+        }
+
+        function addBotMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot';
+            messageDiv.innerHTML = `
+                <div class="message-avatar"><i class="fas fa-robot"></i></div>
+                <div class="message-content">${formatMessage(text)}</div>
+            `;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTyping() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="message-avatar"><i class="fas fa-robot"></i></div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTyping() {
+            const typing = document.getElementById('typingIndicator');
+            if (typing) typing.remove();
+        }
+
+        async function processMessage(message) {
+            showTyping();
+            sendBtn.disabled = true;
+
+            try {
+                const reply = getStaticResponse(message);
+                hideTyping();
+                addBotMessage(reply);
+            } catch (error) {
+                hideTyping();
+                console.error('Sathi static bot error:', error);
+                addBotMessage(
+                    "I'm having trouble processing that. Please try asking in simple words about one medicine or one symptom at a time."
+                );
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+
+        function analyzeImage(imageData) {
+            showTyping();
+            sendBtn.disabled = true;
+
+            setTimeout(() => {
+                hideTyping();
+                addBotMessage(getImageGuidance());
+                sendBtn.disabled = false;
+            }, 600);
+        }
+
+        // --- Static knowledge base + helpers ---
+
+        const medicineDB = {
+            // Pain & fever
+            'paracetamol': `**Paracetamol (Acetaminophen, e.g. Crocin, Calpol, Dolo 650)**<br><br>
+Uses: Fever, mild to moderate pain (headache, body ache, toothache).<br>
+Adult dose (typical): 500–650 mg every 4–6 hours; max 3000–4000 mg/day (including all brands).<br>
+Side effects: Generally safe; overdose can damage liver.<br>
+Avoid: Liver disease, heavy alcohol use, double‑dosing with multiple paracetamol brands.`,
+            'dolo 650': `**Dolo 650 (Paracetamol 650 mg)**<br><br>
+Uses: Fever, body pain, headache.<br>
+Adult dose (usual): 650 mg every 6 hours as needed; do not exceed 4 tablets (2600 mg) without doctor advice.<br>
+Note: Count all paracetamol from other medicines too to avoid overdose.`,
+            'crocin': `**Crocin (Paracetamol brand)**<br><br>
+Uses: Fever and pain relief.<br>
+Dose: As per pack / doctor's advice based on age and weight.<br>
+Warning: Do not combine with other paracetamol brands in high doses.`,
+            'calpol': `**Calpol (Paracetamol, mainly paediatric)**<br><br>
+Uses: Fever and pain in children.<br>
+Dose: Based on child's weight and age. Always follow paediatrician / pack chart.<br>
+Warning: Overdose can be dangerous for children.`,
+
+            // NSAIDs
+            'ibuprofen': `**Ibuprofen (e.g. Brufen)**<br><br>
+Uses: Pain, inflammation, period pain, dental pain, arthritis.<br>
+Adult dose (typical): 200–400 mg every 6–8 hours; max 1200 mg/day OTC.<br>
+Side effects: Gastric irritation, acidity, rarely kidney issues.<br>
+Avoid: Ulcers, kidney disease, pregnancy (3rd trimester) unless doctor says.`,
+            'brufen': `**Brufen (Ibuprofen brand)**<br><br>
+Uses: Same as ibuprofen – pain and inflammation.<br>
+Take after food to reduce gastric irritation.`,
+
+            // Antibiotics (generic info only)
+            'amoxicillin': `**Amoxicillin (Antibiotic)**<br><br>
+Uses: Bacterial throat, ear, chest, urinary and some skin infections.<br>
+Important: Only on doctor's prescription; complete full course even if better.<br>
+Side effects: Nausea, loose motions, allergy/rash in some people.`,
+            'azithromycin': `**Azithromycin (Antibiotic)**<br><br>
+Uses: Throat, chest, some skin and genital infections.<br>
+Important: Prescription only; take exact dose and duration advised.<br>
+Side effects: Nausea, abdominal discomfort, rare heart rhythm issues.`,
+            'augmentin': `**Augmentin (Amoxicillin + Clavulanic acid)**<br><br>
+Uses: Wider‑spectrum antibiotic for resistant infections.<br>
+Important: Prescription only; can cause more gastric upset.<br>
+Always take after food.`,
+
+            // Acidity / gas
+            'pantoprazole': `**Pantoprazole (e.g. Pan 40)**<br><br>
+Uses: Acidity, GERD, gastritis, ulcer support.<br>
+Dose: Usually once daily before food, as per doctor's advice.<br>
+Not for: Long‑term self use without medical supervision.`,
+            'omeprazole': `**Omeprazole** – similar to pantoprazole; used for acidity and reflux. Long‑term use only under doctor's review.`,
+            'digene': `**Digene / Antacid gel / tablets**<br><br>
+Uses: Quick relief from acidity, gas, bloating.<br>
+Dose: As per pack, usually after meals / at bedtime.<br>
+If frequent need, see a doctor instead of self‑treating.`,
+
+            // Allergy / cold
+            'cetirizine': `**Cetirizine (e.g. Cetzine)**<br><br>
+Uses: Allergic cold, sneezing, itching, hives.<br>
+Side effect: Drowsiness in some people – avoid driving after first dose.`,
+            'levocetirizine': `**Levocetirizine (e.g. Levocet, Xyzal)** – similar to cetirizine, sometimes slightly less sedating.`,
+            'montair lc': `**Montair LC (Montelukast + Levocetirizine)**<br><br>
+Uses: Allergic rhinitis, asthma maintenance (as advised by doctor).<br>
+Prescription only; not for sudden asthma attacks.`,
+
+            // Cough syrups (general info)
+            'benadryl': `**Benadryl / common cough syrups**<br><br>
+Uses: Dry cough relief.<br>
+Can cause: Drowsiness; avoid driving, alcohol.<br>
+Always follow pack / doctor's dosing, especially in children.`,
+
+            // ORS / dehydration
+            'ors': `**ORS (Oral Rehydration Solution)**<br><br>
+Uses: Dehydration from loose motions, vomiting, heat.<br>
+Dose: Small frequent sips; more in children and elderly. Ready‑made sachets are safest.`,
+
+            // BP / sugar (generic, not brand‑specific)
+            'metformin': `**Metformin (Diabetes medicine)** – used to control blood sugar; dose and use strictly as per doctor's advice.`,
+            'atenolol': `**Atenolol (BP medicine)** – for blood pressure/heart issues; never start/stop on your own; always follow cardiologist/physician advice.`
+        };
+
+        const symptomKeywords = {
+            fever: ['fever', 'temperature', 'high temp', 'feeling hot'],
+            headache: ['headache', 'head pain', 'migraine'],
+            cough: ['cough', 'coughing', 'throat irritation'],
+            cold: ['cold', 'sneezing', 'runny nose', 'blocked nose', 'congestion'],
+            stomach: ['stomach pain', 'stomach ache', 'abdominal pain', 'nausea', 'vomit', 'vomiting', 'gastric', 'indigestion'],
+            wound: ['wound', 'cut', 'injury', 'bleeding', 'bruise'],
+            skin: ['rash', 'itchy', 'skin allergy', 'red patch', 'spots'],
+            anxiety: ['anxious', 'anxiety', 'stress', 'panic']
+        };
+
+        function getStaticResponse(message) {
+            const q = message.toLowerCase();
+
+            // 1) Medicine info
+            const medInfo = lookupMedicine(q);
+            if (medInfo) {
+                return medInfo + disclaimerText();
+            }
+
+            // 2) Symptom / condition info
+            const symptomInfo = lookupSymptom(q);
+            if (symptomInfo) {
+                return symptomInfo + disclaimerText();
+            }
+
+            // 3) Generic answer
+            return genericFallback(message) + disclaimerText();
+        }
+
+        function lookupMedicine(query) {
+            // Try exact key and contains
+            for (const key of Object.keys(medicineDB)) {
+                if (query.includes(key)) {
+                    return medicineDB[key];
+                }
+            }
+            return null;
+        }
+
+        function lookupSymptom(query) {
+            if (matchesAny(query, symptomKeywords.fever)) {
+                return `**Fever Management (General):**<br><br>
+• Rest in a cool, comfortable room<br>
+• Drink plenty of water / ORS<br>
+• You may use paracetamol in correct dose if not allergic / contraindicated<br>
+• Use light clothing, sponge with lukewarm water<br><br>
+**See a doctor urgently if:**<br>
+• High fever > 103°F (39.4°C)<br>
+• Fever > 3 days<br>
+• Fever with rash, breathing difficulty, confusion, chest pain, very drowsy child.`;
+            }
+            if (matchesAny(query, symptomKeywords.headache)) {
+                return `**Headache Care:**<br><br>
+• Rest in quiet, dark room<br>
+• Drink water – dehydration is common cause<br>
+• Simple painkillers like paracetamol/ibuprofen may help (if safe for you)<br>
+• Avoid screens and loud sounds<br><br>
+**Red flags – go to doctor/ER:**<br>
+• Sudden worst headache of life<br>
+• After head injury<br>
+• With fever, stiff neck, confusion, vision change<br>
+• With weakness, slurring of speech.`;
+            }
+            if (matchesAny(query, symptomKeywords.cough) || matchesAny(query, symptomKeywords.cold)) {
+                return `**Cold & Cough Care:**<br><br>
+• Warm fluids, steam inhalation<br>
+• Gargle with warm salt water for sore throat<br>
+• Honey + tulsi/ginger for adults (not for children < 1 year)<br>
+• Saline nasal drops for blocked nose<br>
+• Avoid smoking and dusty areas<br><br>
+**Doctor visit if:**<br>
+• Cough > 2 weeks<br>
+• High fever, breathing trouble, chest pain<br>
+• Blood in sputum.`;
+            }
+            if (matchesAny(query, symptomKeywords.stomach)) {
+                return `**Stomach Pain / Gastric Upset:**<br><br>
+• Take small sips of water / ORS<br>
+• Avoid spicy, oily, street food temporarily<br>
+• Simple antacids may help for acidity<br>
+• Rest, avoid lying completely flat after heavy meals<br><br>
+**Seek urgent care if:**<br>
+• Severe, one‑side or central pain<br>
+• Pain + vomiting blood / black stools<br>
+• Pain with chest discomfort, sweating, breathlessness<br>
+• Pain in right lower abdomen with fever (appendix concern).`;
+            }
+            if (matchesAny(query, symptomKeywords.wound)) {
+                return `**Wound / Cut First Aid:**<br><br>
+• Wash hands, apply gentle pressure with clean cloth to stop bleeding<br>
+• Rinse wound with clean running water; remove visible dirt<br>
+• Apply antiseptic solution if available; cover with sterile dressing<br>
+• Keep area clean and dry<br><br>
+**Doctor visit if:**<br>
+• Deep / gaping wound, heavy bleeding<br>
+• Animal/human bite, rusty object injury<br>
+• Not had tetanus shot in last 5–10 years<br>
+• Signs of infection (red, hot, pus, fever).`;
+            }
+            if (matchesAny(query, symptomKeywords.skin)) {
+                return `**Skin Rash / Itching:**<br><br>
+• Keep area cool, clean and dry<br>
+• Use mild, fragrance‑free soap and moisturiser<br>
+• Avoid scratching – can cause infection<br>
+• Cool compress or calamine lotion may help mild itching<br><br>
+**Dermatologist visit if:**<br>
+• Rash spreading fast, with fever<br>
+• Blisters, open sores, pus<br>
+• Involves eyes, mouth or genitals<br>
+• Not improving in a few days.`;
+            }
+            if (matchesAny(query, symptomKeywords.anxiety)) {
+                return `**Stress / Anxiety (Basic Tips):**<br><br>
+• Slow deep breathing – inhale 4 sec, hold 4, exhale 6–8 sec<br>
+• Short walk, light stretching, music or talking to trusted person<br>
+• Limit caffeine and mobile scrolling late night<br>
+• Regular sleep and basic exercise help long‑term<br><br>
+⚠️ If you have thoughts of self‑harm, chest pain, or feel out of control, contact a mental health professional or emergency helpline immediately.`;
+            }
+            return null;
+        }
+
+        function matchesAny(query, words) {
+            return words.some(w => query.includes(w));
+        }
+
+        function genericFallback(original) {
+            return `I understood your question as: "${escapeHtml(original)}".<br><br>
+I can help with:<br>
+• General information about common medicines used in India (paracetamol, ibuprofen, antibiotics, antacids, allergy tablets, ORS, etc.)<br>
+• Basic suggestions for fever, cold & cough, headache, stomach pain, wounds, rashes and first aid.<br><br>
+Please try asking about one medicine or one symptom at a time. For example:<br>
+• \"What is Dolo 650 used for?\"<br>
+• \"How to manage fever?\"<br>
+• \"First aid for a cut?\"`;
+        }
+
+        function getImageGuidance() {
+            return `I can see you've uploaded an image. While I cannot diagnose from photos, here are general safety tips:<br><br>
+**For visible injuries / wounds:**<br>
+• Clean gently with running water and mild soap<br>
+• Apply antiseptic and a clean dressing<br>
+• Watch for redness, swelling, pus or fever – these need a doctor<br><br>
+**For rashes / skin issues:**<br>
+• Keep area cool, dry, and avoid scratching<br>
+• Use mild, fragrance‑free products only<br>
+• If spreading fast, painful, blistering, or with fever – see a dermatologist or emergency doctor.<br>`;
+        }
+
+        function disclaimerText() {
+            return `<br><br>⚠️ <strong>Medical Disclaimer:</strong> I share general health information only. I do <strong>not</strong> diagnose, treat, or prescribe. Always consult a qualified doctor or emergency services for medical decisions.`;
+        }
+
+        function formatMessage(text) {
+            // Convert markdown-like formatting to HTML
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>')
+                .replace(/^\- (.*)$/gm, '<li>$1</li>')
+                .replace(/(<li>.*<\/li>)/s, '<ul style="margin: 8px 0; padding-left: 20px;">$1</ul>');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
+
